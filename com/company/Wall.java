@@ -14,7 +14,7 @@ public abstract class Wall {
         this.col = col;
     }
 
-    public boolean isPlaced() {
+    public boolean placed() {
         return placed;
     }
 

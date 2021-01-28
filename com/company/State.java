@@ -58,18 +58,54 @@ public class State {
         this.g = g;
     }
 
-    void extendChildren() {
+    void expandChildren() {
         children = new HashSet<State>();
+
+        try {
+            if (!Main.WALLY[row][col - 1].placed()) {
+                children.add(Main.getStates()[row][col - 1]);
+            }
+        } catch (ArrayIndexOutOfBoundsException ex) {
+        }
+
+        try {
+            if (!Main.WALLY[row][col].placed()) {
+                children.add(Main.getStates()[row][col + 1]);
+            }
+        } catch (ArrayIndexOutOfBoundsException ex) {
+        }
+
+        try {
+            if (!Main.WALLX[row - 1][col].placed()) {
+                children.add(Main.getStates()[row - 1][col]);
+            }
+        } catch (ArrayIndexOutOfBoundsException ex) {
+        }
+
+        try {
+            if (!Main.WALLX[row][col].placed()) {
+                children.add(Main.getStates()[row + 1][col]);
+            }
+        } catch (ArrayIndexOutOfBoundsException ex) {
+        }
+
     }
 
     // compute manhattan heuristic
     int getH() {
-        return (row - Main.goal.row) + (col - Main.goal.col);
+        return Math.abs(row - Main.goal.row) + Math.abs(col - Main.goal.col);
     }
 
     int getF() {
         return g + getH();
     }
-    
-    
+
+    /*
+     State getBestSuccessor(){
+     if()
+     for(State s : children){
+            
+     }
+     }
+     */
 }

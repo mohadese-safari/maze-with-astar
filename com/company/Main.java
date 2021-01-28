@@ -1,8 +1,8 @@
 package com.company;
-
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -10,10 +10,15 @@ import javax.swing.JOptionPane;
 public class Main {
 
     static State initial;
-    static State goal;
+    static State goal = new State(null,9,9,0) ;
+    static ArrayList goalPath = new ArrayList(); // از پدران گل به سمت ریشه حرکت میکنیم
+    
+    
     // Maze dimensions
     static final int m = 10; // rows
     static final int n = 9; // columns
+
+    static PQueue frontier = new PQueue(m * n);
 
     static final Color BEAD_BACKGROUND = new Color(224, 207, 137);
     static final Color BEAD_BACKGROUND_HIGHLIGHTED = new Color(0, 207, 137);
@@ -33,7 +38,6 @@ public class Main {
 
     public static void main(String[] beans) {
         generateBoard();
-
     }
 
     static void generateBoard() {
@@ -188,19 +192,7 @@ public class Main {
     }
 
     static void placeWall(JLabel wall, int X, int Y, Color c) {
-        if (iswallValid()) {
             wall.setBackground(c);
-        }
-        //....
-        // بقیه تغییرات مربوط به جایگذاری دیوار اعمال بشه 
-
-    }
-
-    static boolean iswallValid() {
-        //....
-        // شرط قرارگیری دیوار چک بشه
-
-        return true;
     }
 
     static void playAgain() {
@@ -209,4 +201,35 @@ public class Main {
         //new Main();
     }
 
+    public static State getInitial() {
+        return initial;
+    }
+
+    public static void setInitial(State initial) {
+        Main.initial = initial;
+    }
+
+    public static State getGoal() {
+        return goal;
+    }
+
+    public static void setGoal(State goal) {
+        Main.goal = goal;
+    }
+
+    public static State[][] getStates() {
+        return states;
+    }
+
+    public static void setStates(State[][] states) {
+        Main.states = states;
+    }
+
+    static void runAStar(){
+        
+    }
+    
+    
+    
+    
 }
