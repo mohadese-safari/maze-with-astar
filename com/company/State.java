@@ -11,10 +11,10 @@ public class State {
     private int col;
     private int g;
 
-    public State(State parent, int x, int y, int g) {
+    public State(State parent, int row, int col, int g) {
         this.parent = parent;
-        this.row = x;
-        this.col = y;
+        this.row = row;
+        this.col = col;
         this.g = g;
     }
 
@@ -59,36 +59,39 @@ public class State {
     }
 
     void expandChildren() {
+        // شرط اضافه شدن به فرانتیر نبود مانع و تکراری نبودن گره است
         children = new HashSet<State>();
-
         try {
             if (!Main.WALLY[row][col - 1].placed()) {
-                children.add(Main.getStates()[row][col - 1]);
+                children.add(new State(this, row, col - 1, g + 1));
             }
         } catch (ArrayIndexOutOfBoundsException ex) {
         }
 
         try {
             if (!Main.WALLY[row][col].placed()) {
-                children.add(Main.getStates()[row][col + 1]);
+                children.add(new State(this, row, col + 1, g + 1));
             }
         } catch (ArrayIndexOutOfBoundsException ex) {
         }
 
         try {
             if (!Main.WALLX[row - 1][col].placed()) {
-                children.add(Main.getStates()[row - 1][col]);
+                children.add(new State(this, row - 1, col, g + 1));
             }
         } catch (ArrayIndexOutOfBoundsException ex) {
         }
 
         try {
             if (!Main.WALLX[row][col].placed()) {
-                children.add(Main.getStates()[row + 1][col]);
+                children.add(new State(this, row + 1, col, g + 1));
             }
         } catch (ArrayIndexOutOfBoundsException ex) {
         }
+    }
 
+    public String toString() {
+        return "(" + row + "," + col + ")";
     }
 
     // compute manhattan heuristic
@@ -100,12 +103,32 @@ public class State {
         return g + getH();
     }
 
-    /*
-     State getBestSuccessor(){
-     if()
-     for(State s : children){
-            
-     }
-     }
-     */
+    public boolean worthAdding() {
+        PQueue frontier = Main.getFrontier();
+        PQueue closedList = Main.getClosedList();
+        State sameOnFrontier = frontier.getSamePositionSuccessor(this);
+        State sameOnClosed = closedList.getSamePositionSuccessor(this);
+
+        if (sameOnFrontier != null && sameOnFrontier.getF() <= this.getF()) {
+            return false;
+        } else if (sameOnClosed != null && sameOnClosed.getF() <= this.getF()) {
+            return false;
+        }
+        // Otherwise
+        return true;
+    }
+
+    public boolean matchGoal() {
+        State goal = Main.getGoal();
+        if (row == goal.getRow() && col == goal.getCol()) {
+            return true;
+        }
+        return false;
+    }
+
+    public void addIfWorthy() {
+        if (worthAdding()) {
+            Main.getFrontier().enqueue(this);
+        }
+    }
 }

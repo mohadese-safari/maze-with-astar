@@ -1,30 +1,35 @@
 package com.company;
+
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 public class Main {
 
-    static State initial;
-    static State goal = new State(null,9,9,0) ;
-    static ArrayList goalPath = new ArrayList(); // از پدران گل به سمت ریشه حرکت میکنیم
-    
-    
+    static State initial = new State(null, 0, 0, 0);
+    static State goal = new State(null, 9, 9, 0);
+    static ArrayList goalPath = new ArrayList(); // از پدران هدف به سمت ریشه حرکت میکنیم
+
     // Maze dimensions
     static final int m = 10; // rows
-    static final int n = 9; // columns
+    static final int n = 10; // columns
 
-    static PQueue frontier = new PQueue(m * n);
+    static boolean goalFound = false;
+    private static PQueue frontier = new PQueue(m * n * 2000);
+    private static PQueue closedList = new PQueue(m * n * 2000);
 
     static final Color BEAD_BACKGROUND = new Color(224, 207, 137);
     static final Color BEAD_BACKGROUND_HIGHLIGHTED = new Color(0, 207, 137);
 
     static final Color WALL_BACKGROUND_HIGHLIGHTED = new Color(0, 207, 137);
     static final Color WALL_BACKGROUND_PLACED = new Color(0, 200, 137);
+
+    static final Color PATH_HIGHLIGHTED = new Color(255, 0, 0);
 
     static State[][] states = new State[m][n];
 
@@ -38,6 +43,45 @@ public class Main {
 
     public static void main(String[] beans) {
         generateBoard();
+        frontier.enqueue(initial);
+
+    }
+
+    static State runAStar() {
+        State current;
+        while (!frontier.isEmpty()) {
+            current = frontier.dequeue();
+
+            System.out.println(current);
+
+            current.expandChildren();
+            //System.out.println(current.getChildren());
+            System.out.println(frontier);
+            for (State s : current.getChildren()) {
+                if (s.matchGoal()) {
+                    return s;
+                }
+                s.addIfWorthy();
+            }
+            System.out.println(frontier.getSize());
+            closedList.enqueue(current);
+        }
+        return null;
+    }
+
+    public static void highlightPath(State goal) {
+        if (goal == null) {
+            System.out.println("Goal cannot be reached");
+            return;
+        }
+        State s = goal;
+        System.out.print("path : ");
+        while (s != initial) {
+            beads[s.getRow()][s.getCol()].setBackground(PATH_HIGHLIGHTED);
+            System.out.print(s + " -> ");
+            s = s.getParent();
+        }
+        System.out.println(initial);
     }
 
     static void generateBoard() {
@@ -45,13 +89,29 @@ public class Main {
         //frame set up
         board.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         board.setBackground(new java.awt.Color(255, 255, 153));
-        board.setMinimumSize(new java.awt.Dimension(720, 830));
-        board.setPreferredSize(new java.awt.Dimension(720, 830));
+        board.setMinimumSize(new java.awt.Dimension(800, 860));
+        board.setPreferredSize(new java.awt.Dimension(800, 860));
         board.setResizable(false);
-        board.setSize(new java.awt.Dimension(720, 830));
+        board.setSize(new java.awt.Dimension(800, 860));
         board.setLayout(null);
         board.setLocationRelativeTo(null);
         board.setVisible(true);
+
+        //Add action button
+        JButton action = new JButton();
+        action.setVisible(true);
+        action.setSize(100, 30);
+        action.setText("Run A*");
+        action.setOpaque(true);
+        action.setLocation(310, 800);
+        board.add(action);
+        action.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                State result = runAStar();
+                highlightPath(result);
+            }
+        });
 
         // board.add(PLAYER2.icon);
         // اضافه کردن خانه ها
@@ -192,7 +252,7 @@ public class Main {
     }
 
     static void placeWall(JLabel wall, int X, int Y, Color c) {
-            wall.setBackground(c);
+        wall.setBackground(c);
     }
 
     static void playAgain() {
@@ -225,11 +285,20 @@ public class Main {
         Main.states = states;
     }
 
-    static void runAStar(){
-        
+    public static PQueue getFrontier() {
+        return frontier;
     }
-    
-    
-    
-    
+
+    public static void setFrontier(PQueue aFrontier) {
+        frontier = aFrontier;
+    }
+
+    public static PQueue getClosedList() {
+        return closedList;
+    }
+
+    public static void setClosedList(PQueue aClosedList) {
+        closedList = aClosedList;
+    }
+
 }
