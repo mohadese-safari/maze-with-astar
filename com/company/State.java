@@ -1,17 +1,21 @@
 package com.company;
+
 import java.util.HashSet;
 import java.util.Set;
 
 public class State {
-    private Set<State> children;
-    private State parent ;
-    private int x ;
-    private int y ;
 
-    public State(State parent, int x, int y) {
+    private Set<State> children;
+    private State parent;
+    private int row;
+    private int col;
+    private int g;
+
+    public State(State parent, int x, int y, int g) {
         this.parent = parent;
-        this.x = x;
-        this.y = y;
+        this.row = x;
+        this.col = y;
+        this.g = g;
     }
 
     public Set<State> getChildren() {
@@ -30,24 +34,42 @@ public class State {
         this.parent = parent;
     }
 
-    public int getX() {
-        return x;
+    public int getRow() {
+        return row;
     }
 
-    public void setX(int x) {
-        this.x = x;
+    public void setRow(int row) {
+        this.row = row;
     }
 
-    public int getY() {
-        return y;
+    public int getCol() {
+        return col;
     }
 
-    public void setY(int y) {
-        this.y = y;
+    public void setCol(int col) {
+        this.col = col;
     }
-    
-    
-    
+
+    public int getG() {
+        return g;
+    }
+
+    public void setG(int g) {
+        this.g = g;
+    }
+
+    void extendChildren() {
+        children = new HashSet<State>();
+    }
+
+    // compute manhattan heuristic
+    int getH() {
+        return (row - Main.goal.row) + (col - Main.goal.col);
+    }
+
+    int getF() {
+        return g + getH();
+    }
     
     
 }
