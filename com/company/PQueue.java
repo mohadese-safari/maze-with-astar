@@ -88,28 +88,7 @@ public class PQueue {
     }
 
     public static void main(String[] args) {
-        Main.goal = new State(null, 9, 9, 0);
-        PQueue q = new PQueue(3);
-        State s1 = new State(null, 0, 0, 0);
-        State s2 = new State(s1, 1, 0, 2);
-        State s3 = new State(s1, 0, 1, 10);
-        State s4 = new State(s1, 0, 1, 4);
-
-        q.enqueue(s1);
-        q.enqueue(s2);
-        q.enqueue(s3);
-
-        System.out.println(q.dequeue().getF());
-        System.out.println(q.dequeue().getF());
-        System.out.println(q.dequeue().getF());
-
-        // q.dequeue();
-        //  q.dequeue();
-        //System.out.println(q.dequeue());
-        //System.out.println(q.getSamePositionSuccessor(s1));
-        //System.out.println(q.getSamePositionSuccessor(s2));
-        //System.out.println(q.getSamePositionSuccessor(s4));
-        // System.out.println(q.getSamePositionSuccessor(s3));
+        
     }
 
 }

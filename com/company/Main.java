@@ -8,11 +8,21 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.SwingConstants;
 
 public class Main {
 
-    static State initial = new State(null, 0, 0, 0);
-    static State goal = new State(null, 9, 9, 0);
+    enum BoardStatus {
+
+        NOTHING_PLACED, START_PLACED, GOAL_PLACED
+    }
+
+    static BoardStatus status;
+    static String beadText = "START";
+    static State initial;/* = new State(null, 2, 3, 0);*/
+
+    static State goal;/* = new State(null, 2, 3, 0);*/
+
     static ArrayList goalPath = new ArrayList(); // از پدران هدف به سمت ریشه حرکت میکنیم
 
     // Maze dimensions
@@ -23,13 +33,13 @@ public class Main {
     private static PQueue frontier = new PQueue(m * n * 2000);
     private static PQueue closedList = new PQueue(m * n * 2000);
 
-    static final Color BEAD_BACKGROUND = new Color(224, 207, 137);
+    static final Color BEAD_BACKGROUND = new Color(226, 240, 217);
     static final Color BEAD_BACKGROUND_HIGHLIGHTED = new Color(0, 207, 137);
 
-    static final Color WALL_BACKGROUND_HIGHLIGHTED = new Color(0, 207, 137);
+    static final Color WALL_BACKGROUND_HIGHLIGHTED = new Color(199, 233, 183);
     static final Color WALL_BACKGROUND_PLACED = new Color(0, 200, 137);
 
-    static final Color PATH_HIGHLIGHTED = new Color(255, 0, 0);
+    static final Color PATH_HIGHLIGHTED = new Color(52, 198, 184);
 
     static State[][] states = new State[m][n];
 
@@ -42,12 +52,13 @@ public class Main {
     static JFrame board;
 
     public static void main(String[] beans) {
+        status = BoardStatus.NOTHING_PLACED;
         generateBoard();
-        frontier.enqueue(initial);
 
     }
 
     static State runAStar() {
+        frontier.enqueue(initial);
         State current;
         while (!frontier.isEmpty()) {
             current = frontier.dequeue();
@@ -55,7 +66,6 @@ public class Main {
             System.out.println(current);
 
             current.expandChildren();
-            //System.out.println(current.getChildren());
             System.out.println(frontier);
             for (State s : current.getChildren()) {
                 if (s.matchGoal()) {
@@ -72,6 +82,7 @@ public class Main {
     public static void highlightPath(State goal) {
         if (goal == null) {
             System.out.println("Goal cannot be reached");
+            JOptionPane.showMessageDialog(null, "Goal cannot be reached", "Warning", JOptionPane.WARNING_MESSAGE);
             return;
         }
         State s = goal;
@@ -81,6 +92,7 @@ public class Main {
             System.out.print(s + " -> ");
             s = s.getParent();
         }
+        beads[s.getRow()][s.getCol()].setBackground(PATH_HIGHLIGHTED);
         System.out.println(initial);
     }
 
@@ -120,12 +132,46 @@ public class Main {
                 beads[i][j] = new JLabel();
                 beads[i][j].setVisible(true);
                 beads[i][j].setSize(60, 60);
-                beads[i][j].setBackground(new Color(224, 207, 137));
+                beads[i][j].setBackground(BEAD_BACKGROUND);
                 beads[i][j].setOpaque(true);
                 beads[i][j].setBorder(javax.swing.BorderFactory.createEtchedBorder());
                 beads[i][j].setLocation(80 * j, 80 * i);
+                beads[i][j].setHorizontalAlignment(SwingConstants.CENTER);
                 board.add(beads[i][j]);
                 beads[i][j].repaint();
+                int row = i;
+                int col = j;
+
+                beads[i][j].addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        beads[row][col].removeMouseListener(this);
+                        if (status == BoardStatus.NOTHING_PLACED) {
+                            beadText = "GOAL";
+                            initial = new State(null, row, col, 0);
+                            status = BoardStatus.START_PLACED;
+                        } else if (status == BoardStatus.START_PLACED) {
+                            status = BoardStatus.GOAL_PLACED;
+                            goal = new State(null, row, col, 0);
+                        }
+                    }
+
+                    @Override
+                    public void mouseEntered(MouseEvent e) {
+                        if (status == BoardStatus.GOAL_PLACED) {
+                            beads[row][col].removeMouseListener(this);
+                        } else {
+                            beads[row][col].setText(beadText);
+                        }
+
+                    }
+
+                    @Override
+                    public void mouseExited(MouseEvent e) {
+                        beads[row][col].setText("");
+                    }
+                });
+
             }
         }
 
